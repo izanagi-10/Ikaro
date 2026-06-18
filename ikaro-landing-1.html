@@ -1,0 +1,837 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>IKARO | Tienda de Ropa</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --black: #0a0a0a;
+      --dark: #111111;
+      --panel: #161616;
+      --gold: #c9a84c;
+      --gold-light: #e8c97a;
+      --white: #f5f5f5;
+      --muted: #888;
+      --wa-green: #25D366;
+      --fb-blue: #1877F2;
+      --ig-grad-start: #f58529;
+      --ig-grad-end: #dd2a7b;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--black);
+      color: var(--white);
+      overflow-x: hidden;
+    }
+
+    /* ── NAVBAR ── */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 28px;
+      background: rgba(10,10,10,0.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(201,168,76,0.15);
+    }
+
+    .hamburger {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      cursor: pointer;
+      background: var(--black);
+      border: none;
+      padding: 10px;
+      border-radius: 6px;
+    }
+    .hamburger span {
+      display: block;
+      width: 24px;
+      height: 2px;
+      background: var(--white);
+      transition: all .3s;
+    }
+    .hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+    .hamburger.open span:nth-child(2) { opacity: 0; }
+    .hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+    .nav-logo {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 28px;
+      letter-spacing: 4px;
+      color: var(--gold);
+      text-decoration: none;
+    }
+
+    .nav-cta {
+      background: var(--gold);
+      color: var(--black);
+      font-size: 13px;
+      font-weight: 600;
+      padding: 9px 20px;
+      border-radius: 4px;
+      text-decoration: none;
+      letter-spacing: 0.5px;
+      transition: background .2s;
+    }
+    .nav-cta:hover { background: var(--gold-light); }
+
+    /* ── DRAWER MENU ── */
+    .drawer {
+      position: fixed;
+      top: 0; left: -320px;
+      width: 300px;
+      height: 100vh;
+      background: var(--panel);
+      z-index: 2000;
+      padding: 80px 36px 40px;
+      border-right: 1px solid rgba(201,168,76,0.2);
+      transition: left .35s cubic-bezier(.4,0,.2,1);
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+    .drawer.open { left: 0; }
+
+    .drawer-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.7);
+      z-index: 1999;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .35s;
+    }
+    .drawer-overlay.open { opacity: 1; pointer-events: all; }
+
+    .drawer-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 13px;
+      letter-spacing: 4px;
+      color: var(--gold);
+      margin-bottom: 32px;
+    }
+
+    .drawer a {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 16px;
+      font-weight: 500;
+      color: var(--white);
+      text-decoration: none;
+      padding: 14px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      transition: color .2s, padding-left .2s;
+    }
+    .drawer a:hover { color: var(--gold); padding-left: 6px; }
+    .drawer a .icon { font-size: 18px; width: 24px; text-align: center; }
+
+    /* ── HERO ── */
+    .hero {
+      min-height: 100vh;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 100px 24px 60px;
+      overflow: hidden;
+    }
+
+    .hero-bg {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0;
+      z-index: 0;
+    }
+
+    .hero-bg-col {
+      background-size: cover;
+      background-position: center top;
+      filter: brightness(0.22) saturate(0.4);
+    }
+
+    /* SVG placeholder outfits usando gradientes como stand-in visual */
+    .col-1 { background: linear-gradient(180deg, #1a1a2e 0%, #16213e 30%, #0f3460 60%, #1a1a2e 100%); }
+    .col-2 { background: linear-gradient(180deg, #2d1b00 0%, #4a2f00 30%, #1a0f00 60%, #0d0d0d 100%); }
+    .col-3 { background: linear-gradient(180deg, #0d1117 0%, #1a1a2e 30%, #2d2d2d 60%, #0a0a0a 100%); }
+    .col-4 { background: linear-gradient(180deg, #1a0f00 0%, #2d1b00 30%, #1a1a2e 60%, #111 100%); }
+
+    .hero-bg::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse 80% 60% at 50% 50%, rgba(10,10,10,0.6) 0%, rgba(10,10,10,0.95) 100%);
+    }
+
+    /* Outfit SVG figures */
+    .outfit-figures {
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      pointer-events: none;
+    }
+
+    .outfit-fig {
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      padding-bottom: 0;
+      opacity: 0.18;
+    }
+
+    .outfit-fig svg { width: 100%; max-width: 160px; height: auto; }
+
+    .hero-content {
+      position: relative;
+      z-index: 2;
+    }
+
+    .hero-eyebrow {
+      font-size: 11px;
+      letter-spacing: 6px;
+      color: var(--gold);
+      text-transform: uppercase;
+      margin-bottom: 18px;
+    }
+
+    .hero-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(64px, 12vw, 130px);
+      line-height: 0.9;
+      letter-spacing: 6px;
+      color: var(--white);
+      margin-bottom: 20px;
+    }
+
+    .hero-title span { color: var(--gold); }
+
+    .hero-sub {
+      font-size: clamp(15px, 2vw, 18px);
+      color: rgba(245,245,245,0.65);
+      font-weight: 300;
+      max-width: 480px;
+      line-height: 1.7;
+      margin: 0 auto 40px;
+    }
+
+    .hero-sub strong { color: var(--gold-light); font-weight: 500; }
+
+    .hero-actions {
+      display: flex;
+      gap: 14px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .btn-primary {
+      background: var(--gold);
+      color: var(--black);
+      font-size: 14px;
+      font-weight: 700;
+      padding: 14px 32px;
+      border-radius: 4px;
+      text-decoration: none;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      transition: all .2s;
+    }
+    .btn-primary:hover { background: var(--gold-light); transform: translateY(-1px); }
+
+    .btn-outline {
+      border: 1px solid rgba(201,168,76,0.5);
+      color: var(--gold);
+      font-size: 14px;
+      font-weight: 500;
+      padding: 14px 32px;
+      border-radius: 4px;
+      text-decoration: none;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      transition: all .2s;
+    }
+    .btn-outline:hover { border-color: var(--gold); background: rgba(201,168,76,0.08); }
+
+    /* ── SECTIONS SHARED ── */
+    section {
+      padding: 96px 24px;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .section-label {
+      font-size: 11px;
+      letter-spacing: 5px;
+      color: var(--gold);
+      text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+
+    .section-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(36px, 6vw, 56px);
+      letter-spacing: 2px;
+      color: var(--white);
+      margin-bottom: 16px;
+      line-height: 1;
+    }
+
+    .section-divider {
+      width: 48px;
+      height: 2px;
+      background: var(--gold);
+      margin-bottom: 48px;
+    }
+
+    /* ── CATEGORÍAS ── */
+    .cats-section {
+      padding: 80px 24px;
+      background: var(--dark);
+    }
+    .cats-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+    .cats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px;
+      margin-top: 48px;
+    }
+    .cat-card {
+      background: var(--panel);
+      border: 1px solid rgba(201,168,76,0.12);
+      border-radius: 8px;
+      padding: 32px 24px;
+      text-align: center;
+      transition: border-color .2s, transform .2s;
+      cursor: pointer;
+      text-decoration: none;
+    }
+    .cat-card:hover {
+      border-color: rgba(201,168,76,0.5);
+      transform: translateY(-4px);
+    }
+    .cat-icon { font-size: 36px; margin-bottom: 14px; }
+    .cat-name {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 22px;
+      letter-spacing: 2px;
+      color: var(--white);
+      margin-bottom: 6px;
+    }
+    .cat-desc { font-size: 13px; color: var(--muted); }
+
+    /* ── POR QUÉ ELEGIRNOS ── */
+    .why-section {
+      background: var(--black);
+      padding: 96px 24px;
+    }
+    .why-inner { max-width: 1100px; margin: 0 auto; }
+    .why-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 32px;
+      margin-top: 48px;
+    }
+    .why-card {
+      border-left: 2px solid var(--gold);
+      padding: 24px 28px;
+      background: var(--panel);
+      border-radius: 0 8px 8px 0;
+    }
+    .why-number {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 48px;
+      color: rgba(201,168,76,0.2);
+      line-height: 1;
+      margin-bottom: 8px;
+    }
+    .why-heading {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--gold-light);
+      margin-bottom: 10px;
+      letter-spacing: 0.5px;
+    }
+    .why-text { font-size: 14px; color: rgba(245,245,245,0.6); line-height: 1.7; }
+
+    /* ── MÉTODOS DE PAGO ── */
+    .pay-section {
+      background: var(--dark);
+      padding: 96px 24px;
+    }
+    .pay-inner { max-width: 1100px; margin: 0 auto; }
+
+    .pay-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 16px;
+      margin-top: 48px;
+    }
+    .pay-card {
+      background: var(--panel);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 10px;
+      padding: 28px 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      transition: border-color .2s;
+    }
+    .pay-card:hover { border-color: rgba(201,168,76,0.3); }
+    .pay-icon { font-size: 32px; }
+    .pay-label {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--white);
+      text-align: center;
+    }
+    .pay-sub { font-size: 11px; color: var(--muted); text-align: center; }
+
+    .pay-note {
+      margin-top: 32px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: rgba(201,168,76,0.08);
+      border: 1px solid rgba(201,168,76,0.2);
+      border-radius: 8px;
+      padding: 16px 20px;
+      font-size: 14px;
+      color: rgba(245,245,245,0.75);
+    }
+    .pay-note span { font-size: 18px; }
+
+    /* ── WHATSAPP FLOTANTE ── */
+    .wa-float {
+      position: fixed;
+      left: 24px;
+      bottom: 90px;
+      z-index: 900;
+      width: 56px;
+      height: 56px;
+      background: var(--wa-green);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 20px rgba(37,211,102,0.4);
+      text-decoration: none;
+      transition: transform .2s, box-shadow .2s;
+      animation: pulse-wa 2.5s infinite;
+    }
+    .wa-float:hover {
+      transform: scale(1.1);
+      box-shadow: 0 6px 28px rgba(37,211,102,0.6);
+      animation: none;
+    }
+    @keyframes pulse-wa {
+      0%, 100% { box-shadow: 0 4px 20px rgba(37,211,102,0.4); }
+      50% { box-shadow: 0 4px 32px rgba(37,211,102,0.7); }
+    }
+    .wa-float svg { width: 28px; height: 28px; fill: #fff; }
+
+    .wa-tooltip {
+      position: absolute;
+      left: 70px;
+      background: var(--panel);
+      color: var(--white);
+      font-size: 13px;
+      font-weight: 500;
+      padding: 8px 14px;
+      border-radius: 6px;
+      white-space: nowrap;
+      pointer-events: none;
+      opacity: 0;
+      transform: translateX(-8px);
+      transition: opacity .2s, transform .2s;
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+    .wa-float:hover .wa-tooltip { opacity: 1; transform: translateX(0); }
+
+    /* ── FOOTER ── */
+    footer {
+      background: #060606;
+      border-top: 1px solid rgba(201,168,76,0.15);
+      padding: 48px 24px 32px;
+    }
+    .footer-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 32px;
+    }
+    .footer-logo {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 40px;
+      letter-spacing: 6px;
+      color: var(--gold);
+    }
+    .footer-tagline {
+      font-size: 13px;
+      color: var(--muted);
+      letter-spacing: 2px;
+      text-align: center;
+    }
+
+    .footer-socials {
+      display: flex;
+      gap: 16px;
+    }
+
+    .social-btn {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 13px 28px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      text-decoration: none;
+      transition: transform .2s, filter .2s;
+      letter-spacing: 0.3px;
+    }
+    .social-btn:hover { transform: translateY(-3px); filter: brightness(1.1); }
+    .social-btn svg { width: 20px; height: 20px; flex-shrink: 0; }
+
+    .btn-fb {
+      background: var(--fb-blue);
+      color: #fff;
+    }
+    .btn-wa {
+      background: var(--wa-green);
+      color: #fff;
+    }
+    .btn-ig {
+      background: linear-gradient(135deg, var(--ig-grad-start), #c13584, var(--ig-grad-end));
+      color: #fff;
+    }
+
+    .footer-copy {
+      font-size: 12px;
+      color: rgba(255,255,255,0.2);
+      text-align: center;
+    }
+    .footer-copy a { color: rgba(201,168,76,0.5); text-decoration: none; }
+
+    /* ── SCROLL REVEAL ── */
+    .reveal {
+      opacity: 0;
+      transform: translateY(28px);
+      transition: opacity .65s ease, transform .65s ease;
+    }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 600px) {
+      .hero-bg { grid-template-columns: repeat(2, 1fr); }
+      .outfit-figures { grid-template-columns: repeat(2, 1fr); }
+      .outfit-fig:nth-child(3), .outfit-fig:nth-child(4) { display: none; }
+      .footer-socials { flex-direction: column; width: 100%; }
+      .social-btn { justify-content: center; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── NAVBAR ── -->
+<nav>
+  <button class="hamburger" id="hamburgerBtn" aria-label="Menú">
+    <span></span><span></span><span></span>
+  </button>
+  <a href="#" class="nav-logo">IKARO</a>
+  <a href="https://wa.me/5493704562626?text=Hola!%20Vi%20la%20web%20y%20quiero%20consultar%20por%20ropa%20%F0%9F%91%8C" class="nav-cta" target="_blank" rel="noopener">Consultá ahora</a>
+</nav>
+
+<!-- ── DRAWER ── -->
+<div class="drawer-overlay" id="drawerOverlay"></div>
+<nav class="drawer" id="drawer">
+  <div class="drawer-title">Menú IKARO</div>
+  <a href="#categorias"><span class="icon">👕</span>Categorías</a>
+  <a href="#porque"><span class="icon">⭐</span>Por qué elegirnos</a>
+  <a href="#pagos"><span class="icon">💳</span>Métodos de pago</a>
+  <a href="https://wa.me/5493704562626?text=Hola!%20Quisiera%20hacer%20un%20pedido%20personalizado%20%F0%9F%91%8C" target="_blank" rel="noopener"><span class="icon">🛍️</span>Pedido personalizado</a>
+  <a href="https://wa.me/5493704562626?text=Hola!%20Quisiera%20conocer%20el%20horario%20de%20atenci%C3%B3n%20de%20la%20tienda" target="_blank" rel="noopener"><span class="icon">🕐</span>Horarios de atención</a>
+  <a href="https://wa.me/5493704562626?text=Hola!%20Quisiera%20consultar%20sobre%20env%C3%ADos%20y%20entregas" target="_blank" rel="noopener"><span class="icon">🚚</span>Envíos y entregas</a>
+  <a href="https://wa.me/5493704562626?text=Hola!%20Quisiera%20preguntar%20por%20talles%20y%20disponibilidad" target="_blank" rel="noopener"><span class="icon">📏</span>Guía de talles</a>
+</nav>
+
+<!-- ── HERO ── -->
+<section class="hero" style="max-width:100%; padding:100px 24px 60px; margin:0;">
+  <div class="hero-bg">
+    <div class="hero-bg-col col-1"></div>
+    <div class="hero-bg-col col-2"></div>
+    <div class="hero-bg-col col-3"></div>
+    <div class="hero-bg-col col-4"></div>
+  </div>
+
+  <!-- Siluetas de outfits SVG -->
+  <div class="outfit-figures">
+    <!-- Jeans + remera -->
+    <div class="outfit-fig">
+      <svg viewBox="0 0 120 320" xmlns="http://www.w3.org/2000/svg">
+        <ellipse cx="60" cy="30" rx="22" ry="26" fill="#c9a84c"/>
+        <rect x="35" y="58" width="50" height="70" rx="6" fill="#c9a84c"/>
+        <path d="M35 128 L20 240 L50 240 L60 170 L70 240 L100 240 L85 128Z" fill="#4a6fa5"/>
+        <rect x="20" y="235" width="30" height="14" rx="4" fill="#2d4a70"/>
+        <rect x="70" y="235" width="30" height="14" rx="4" fill="#2d4a70"/>
+      </svg>
+    </div>
+    <!-- Buzo -->
+    <div class="outfit-fig">
+      <svg viewBox="0 0 120 320" xmlns="http://www.w3.org/2000/svg">
+        <ellipse cx="60" cy="30" rx="22" ry="26" fill="#c9a84c"/>
+        <path d="M30 60 L10 90 L25 95 L35 128 L85 128 L95 95 L110 90 L90 60 L60 58Z" fill="#3a3a3a" rx="4"/>
+        <path d="M35 128 L22 245 L52 245 L62 175 L72 245 L98 245 L85 128Z" fill="#222"/>
+        <rect x="22" y="240" width="30" height="14" rx="4" fill="#111"/>
+        <rect x="68" y="240" width="30" height="14" rx="4" fill="#111"/>
+      </svg>
+    </div>
+    <!-- Campera -->
+    <div class="outfit-fig">
+      <svg viewBox="0 0 120 320" xmlns="http://www.w3.org/2000/svg">
+        <ellipse cx="60" cy="30" rx="22" ry="26" fill="#c9a84c"/>
+        <path d="M32 60 L8 88 L24 96 L36 130 L84 130 L96 96 L112 88 L88 60 L70 72 L60 68 L50 72Z" fill="#1a1a2e"/>
+        <line x1="60" y1="68" x2="60" y2="130" stroke="#c9a84c" stroke-width="2"/>
+        <path d="M36 130 L24 248 L54 248 L62 178 L70 248 L96 248 L84 130Z" fill="#333"/>
+        <rect x="24" y="243" width="30" height="14" rx="4" fill="#222"/>
+        <rect x="66" y="243" width="30" height="14" rx="4" fill="#222"/>
+      </svg>
+    </div>
+    <!-- Cargo pants + remera -->
+    <div class="outfit-fig">
+      <svg viewBox="0 0 120 320" xmlns="http://www.w3.org/2000/svg">
+        <ellipse cx="60" cy="30" rx="22" ry="26" fill="#c9a84c"/>
+        <rect x="36" y="58" width="48" height="65" rx="5" fill="#8b7355"/>
+        <path d="M36 123 L22 248 L52 248 L62 175 L72 248 L98 248 L84 123Z" fill="#4a4230"/>
+        <rect x="22" y="148" width="22" height="18" rx="3" fill="#3a3220"/>
+        <rect x="76" y="148" width="22" height="18" rx="3" fill="#3a3220"/>
+        <rect x="22" y="243" width="30" height="14" rx="4" fill="#2a2216"/>
+        <rect x="68" y="243" width="30" height="14" rx="4" fill="#2a2216"/>
+      </svg>
+    </div>
+  </div>
+
+  <div class="hero-content">
+    <p class="hero-eyebrow">Formosa · Argentina · Est. 2024</p>
+    <h1 class="hero-title">VESTÍ<br><span>TU ESTILO</span></h1>
+    <p class="hero-sub">
+      Ropa que dice algo antes de que abras la boca.<br>
+      <strong>Jeans, remeras, buzos y camperas</strong> pensados para el que sabe lo que quiere.
+    </p>
+    <div class="hero-actions">
+      <a href="https://wa.me/5493704562626?text=Hola!%20Quisiera%20ver%20las%20novedades%20disponibles%20%F0%9F%91%8C" class="btn-primary" target="_blank" rel="noopener">Ver colección</a>
+      <a href="#porque" class="btn-outline">Por qué IKARO</a>
+    </div>
+  </div>
+</section>
+
+<!-- ── CATEGORÍAS ── -->
+<div class="cats-section" id="categorias">
+  <div class="cats-inner">
+    <div class="reveal">
+      <p class="section-label">Lo que encontrás</p>
+      <h2 class="section-title">Nuestra Colección</h2>
+      <div class="section-divider"></div>
+    </div>
+    <div class="cats-grid">
+      <a class="cat-card reveal" href="https://wa.me/5493704562626?text=Hola!%20Me%20interesan%20los%20jeans%2C%20%C2%BFqu%C3%A9%20modelos%20y%20talles%20tienen%3F" target="_blank" rel="noopener">
+        <div class="cat-icon">👖</div>
+        <div class="cat-name">Jeans</div>
+        <div class="cat-desc">Slim, straight, cargo — para cada ocasión</div>
+      </a>
+      <a class="cat-card reveal" href="https://wa.me/5493704562626?text=Hola!%20Quiero%20ver%20las%20remeras%20disponibles%2C%20%C2%BFme%20pod%C3%A9s%20mandar%20fotos%3F" target="_blank" rel="noopener">
+        <div class="cat-icon">👕</div>
+        <div class="cat-name">Remeras</div>
+        <div class="cat-desc">Básicas y estampadas con onda propia</div>
+      </a>
+      <a class="cat-card reveal" href="https://wa.me/5493704562626?text=Hola!%20Quiero%20info%20sobre%20los%20buzos%20disponibles" target="_blank" rel="noopener">
+        <div class="cat-icon">🧥</div>
+        <div class="cat-name">Buzos</div>
+        <div class="cat-desc">Comodidad sin perder el look</div>
+      </a>
+      <a class="cat-card reveal" href="https://wa.me/5493704562626?text=Hola!%20Me%20interesan%20las%20camperas%2C%20%C2%BFqu%C3%A9%20modelos%20tienen%3F" target="_blank" rel="noopener">
+        <div class="cat-icon">🧣</div>
+        <div class="cat-name">Camperas</div>
+        <div class="cat-desc">Para salir y que se note</div>
+      </a>
+    </div>
+  </div>
+</div>
+
+<!-- ── POR QUÉ ELEGIRNOS ── -->
+<div class="why-section" id="porque">
+  <div class="why-inner">
+    <div class="reveal">
+      <p class="section-label">Nuestro diferencial</p>
+      <h2 class="section-title">Por Qué IKARO</h2>
+      <div class="section-divider"></div>
+    </div>
+    <div class="why-grid">
+      <div class="why-card reveal">
+        <div class="why-number">01</div>
+        <div class="why-heading">Atención personalizada real</div>
+        <div class="why-text">No hablás con un bot. Respondemos rápido por WhatsApp, te asesoramos en talle y combinaciones, y nos aseguramos de que quedes conforme.</div>
+      </div>
+      <div class="why-card reveal">
+        <div class="why-number">02</div>
+        <div class="why-heading">Ropa con identidad propia</div>
+        <div class="why-text">Seleccionamos prendas pensando en el estilo del día a día sin resignar calidad. Nada de lo que hay en IKARO lo encontrás en cualquier lado.</div>
+      </div>
+      <div class="why-card reveal">
+        <div class="why-number">03</div>
+        <div class="why-heading">Precios justos siempre</div>
+        <div class="why-text">Trabajamos con márgenes honestos para que la calidad sea accesible. Porque vestirse bien no debería costar una fortuna.</div>
+      </div>
+      <div class="why-card reveal">
+        <div class="why-number">04</div>
+        <div class="why-heading">Tienda física + online</div>
+        <div class="why-text">Estamos en Saavedra 716, Formosa. Podés pasar, probarte y ver la ropa en persona, o comprarte desde donde estés y recibir tu pedido.</div>
+      </div>
+      <div class="why-card reveal">
+        <div class="why-number">05</div>
+        <div class="why-heading">Cambios sin drama</div>
+        <div class="why-text">Si el talle no fue el indicado o no te convenció, lo resolvemos. Tu satisfacción vale más que una venta.</div>
+      </div>
+      <div class="why-card reveal">
+        <div class="why-number">06</div>
+        <div class="why-heading">Novedades constantes</div>
+        <div class="why-text">Actualizamos el stock seguido para que siempre encuentres algo nuevo. Seguinos en redes y enterate antes que nadie.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── MÉTODOS DE PAGO ── -->
+<div class="pay-section" id="pagos">
+  <div class="pay-inner">
+    <div class="reveal">
+      <p class="section-label">Sin complicaciones</p>
+      <h2 class="section-title">Métodos de Pago</h2>
+      <div class="section-divider"></div>
+    </div>
+    <div class="pay-grid">
+      <div class="pay-card reveal">
+        <div class="pay-icon">💵</div>
+        <div class="pay-label">Efectivo</div>
+        <div class="pay-sub">Sin recargo</div>
+      </div>
+      <div class="pay-card reveal">
+        <div class="pay-icon">📱</div>
+        <div class="pay-label">Transferencia</div>
+        <div class="pay-sub">CBU / Alias</div>
+      </div>
+      <div class="pay-card reveal">
+        <div class="pay-icon">🟣</div>
+        <div class="pay-label">Mercado Pago</div>
+        <div class="pay-sub">QR o link de pago</div>
+      </div>
+      <div class="pay-card reveal">
+        <div class="pay-icon">💳</div>
+        <div class="pay-label">Tarjeta de débito</div>
+        <div class="pay-sub">Todas las redes</div>
+      </div>
+      <div class="pay-card reveal">
+        <div class="pay-icon">💳</div>
+        <div class="pay-label">Tarjeta de crédito</div>
+        <div class="pay-sub">Visa · Mastercard · Naranja</div>
+      </div>
+      <div class="pay-card reveal">
+        <div class="pay-icon">🏦</div>
+        <div class="pay-label">Cuotas</div>
+        <div class="pay-sub">Consultá disponibilidad</div>
+      </div>
+    </div>
+    <div class="pay-note reveal">
+      <span>💡</span>
+      ¿Querés saber si hay alguna promo o descuento disponible hoy? Escribinos por WhatsApp antes de pagar.
+    </div>
+  </div>
+</div>
+
+<!-- ── WA FLOTANTE ── -->
+<a class="wa-float" href="https://api.whatsapp.com/send?phone=5493704562626&text=Hola!%20Vi%20la%20web%20de%20IKARO%20y%20quiero%20consultar%20sobre%20la%20ropa%20disponible%20%F0%9F%91%8C" target="_blank" aria-label="WhatsApp">
+  <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
+  </svg>
+  <span class="wa-tooltip">¡Escribinos!</span>
+</a>
+
+<!-- ── FOOTER ── -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-logo">IKARO</div>
+    <p class="footer-tagline">El estilo no grita — habla solo · Saavedra 716, Formosa</p>
+
+    <div class="footer-socials">
+      <a class="social-btn btn-fb" href="https://www.facebook.com/share/1DNMcuKEMn/" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg">
+          <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+        </svg>
+        Facebook
+      </a>
+      <a class="social-btn btn-wa" href="https://wa.me/5493704562626?text=Hola!%20Los%20contacto%20desde%20su%20p%C3%A1gina%20web%20%F0%9F%91%8C" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg">
+          <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
+        </svg>
+        WhatsApp
+      </a>
+      <a class="social-btn btn-ig" href="https://www.instagram.com/ikaro.formosa?igsh=MTVidHY5YWJrNTlldw==" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/>
+        </svg>
+        Instagram
+      </a>
+    </div>
+
+    <p class="footer-copy">© 2025 IKARO — Todos los derechos reservados · <a href="https://wa.me/5493704562626">Contacto</a></p>
+  </div>
+</footer>
+
+<script>
+  // Hamburger / Drawer
+  const btn = document.getElementById('hamburgerBtn');
+  const drawer = document.getElementById('drawer');
+  const overlay = document.getElementById('drawerOverlay');
+
+  function toggleDrawer(open) {
+    btn.classList.toggle('open', open);
+    drawer.classList.toggle('open', open);
+    overlay.classList.toggle('open', open);
+    document.body.style.overflow = open ? 'hidden' : '';
+  }
+
+  btn.addEventListener('click', () => toggleDrawer(!drawer.classList.contains('open')));
+  overlay.addEventListener('click', () => toggleDrawer(false));
+  drawer.querySelectorAll('a').forEach(a => a.addEventListener('click', () => toggleDrawer(false)));
+
+  // Scroll reveal
+  const revealEls = document.querySelectorAll('.reveal');
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); } });
+  }, { threshold: 0.12 });
+  revealEls.forEach(el => observer.observe(el));
+</script>
+</body>
+</html>
